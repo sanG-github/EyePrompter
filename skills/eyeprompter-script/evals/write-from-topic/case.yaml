@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: write-from-topic
+expected_outcome: |
+  A new script of roughly 2 minutes (about 250–350 spoken words at 150 wpm) in EyePrompter format: '# ' title, '## ' sections (hook, the 3 tips, ending), friendly first-person 'mình' addressing 'các bạn', short sentences, saved as an .md file that passes the checker.

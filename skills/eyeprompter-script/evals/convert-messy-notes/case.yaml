@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: convert-messy-notes
+expected_outcome: |
+  An EyePrompter .md file converted from the notes: '# ' title, '## ' sections, only spoken lines, the b-roll direction as its own [note] line, symbols and abbreviations spelled out, no markdown or emoji, all original points kept. Checker passes.
+context:
+  scaffold_script: place-files.sh
