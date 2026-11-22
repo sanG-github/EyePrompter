@@ -2,6 +2,16 @@
 
 An iPhone teleprompter that scrolls along with your voice and corrects your gaze so you appear to look straight into the camera.
 
+<p align="center">
+  <img src="docs/screenshots/editor.png" width="19%" alt="Script editor with resume button">
+  <img src="docs/screenshots/prompter.png" width="19%" alt="Prompter: current word highlighted, pace slider and recording controls">
+  <img src="docs/screenshots/outline.png" width="19%" alt="Outline: jump by section or paragraph">
+  <img src="docs/screenshots/calibrate.png" width="19%" alt="Gaze calibration: look at the camera">
+  <img src="docs/screenshots/settings.png" width="19%" alt="Camera settings">
+</p>
+
+<p align="center"><sub>Script editor · Prompter · Outline · Gaze calibration · Camera settings. Captured in the iOS Simulator, which has no front camera, so the camera preview is empty here; on an iPhone it shows your face behind the controls.</sub></p>
+
 ## Features
 
 - **Voice-following scroll**: on-device speech recognition (SFSpeechRecognizer, Vietnamese by default, other languages selectable) is matched word by word against the script. The app estimates your reading pace in words per minute, so scrolling stays smooth and keeps up when you read fast.
