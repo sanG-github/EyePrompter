@@ -1,37 +1,45 @@
 # EyePrompter
 
-Ứng dụng teleprompter cho iPhone: chữ chạy theo giọng đọc, kèm chỉnh ánh mắt nhìn thẳng vào camera.
+An iPhone teleprompter that scrolls along with your voice and corrects your gaze so you appear to look straight into the camera.
 
-## Tính năng
+## Features
 
-- **Chữ chạy theo giọng nói**: nhận dạng giọng nói tiếng Việt (SFSpeechRecognizer) và so khớp với kịch bản từng chữ. App tự ước tính tốc độ đọc (chữ/phút) để cuộn mượt, vẫn theo kịp khi đọc nhanh.
-- **Đọc lại**: khi bạn đọc lại một câu, chữ tự lùi về đúng chỗ. Có nút "↺ Câu", kéo chữ để chọn dòng muốn đọc, và mục lục để nhảy theo đoạn hoặc theo tiêu đề.
-- **Đọc tiếp**: mở lại app thì tiếp tục từ chỗ đang đọc dở.
-- **Chỉnh ánh mắt**: Vision tìm vùng mắt, một shader Metal dời tròng mắt để trông như đang nhìn vào camera. Hiệu chỉnh mất 4 giây: nhìn camera 2 giây, rồi nhìn chữ 2 giây.
-- **Quay video**: camera trước, 1080p hoặc 4K, 30 hoặc 60 fps, chỉnh phơi sáng và zoom, tuỳ chọn lật gương. Video được lưu vào Ảnh. Hỗ trợ cả màn hình dọc lẫn ngang.
-- **Nhập kịch bản**: dán từ Mac qua Universal Clipboard, AirDrop file `.txt`, `.md` hoặc `.rtf`, hoặc mở bằng "Mở trong".
+- **Voice-following scroll**: on-device speech recognition (SFSpeechRecognizer, Vietnamese by default, other languages selectable) is matched word by word against the script. The app estimates your reading pace in words per minute, so scrolling stays smooth and keeps up when you read fast.
+- **Re-reading**: re-read a sentence and the text moves back to it. You can also tap "↺ Câu" to return to the start of the sentence, drag the text to pick a line, or jump by paragraph or heading from the outline.
+- **Resume**: reopen the app and it continues where you stopped.
+- **Eye-contact correction**: Vision finds the eyes and a Metal shader shifts the iris so you appear to look at the camera. Calibrating takes 4 seconds: look at the camera for 2 s, then at the text for 2 s.
+- **Recording**: front camera at 1080p or 4K, 30 or 60 fps, with exposure, zoom and an optional mirrored output. Clips are saved to Photos. Portrait and landscape are both supported.
+- **Script import**: paste from a Mac through Universal Clipboard, AirDrop a `.txt`, `.md` or `.rtf` file, or use "Open in".
 
-## Định dạng kịch bản
+## Script format
 
 ```text
-# Tên video
+# Video title
 
-## Mở đầu
-Chào mọi người. Câu ngắn, viết đúng như khi đọc.
+## Intro
+Hi everyone. Short sentences, written exactly as you say them.
 
-[B-roll: ghi chú không đọc, nằm trên một dòng riêng]
+[B-roll: a note that is not read aloud, on its own line]
 
-## Phần 1
-Đoạn văn từ 1 đến 3 câu, cách nhau bằng một dòng trống.
+## Part 1
+Paragraphs of 1 to 3 sentences, separated by a blank line.
 ```
 
-- `PROMPT-chuyen-kich-ban.md`: prompt để dán vào AI bất kỳ, giúp chuyển kịch bản sang định dạng này.
-- `skills/eyeprompter-script/`: skill dùng cho Claude Code, Antigravity hoặc Gemini CLI để viết hoặc chuyển kịch bản, kèm script kiểm tra `scripts/check_script.py`. Muốn cài, chép thư mục này vào `~/.claude/skills/`.
+- `# Title`: the script's name in the app.
+- `## Section`: listed in the outline; the app does not wait for you to read it.
+- `[note]`: shown dimmed; skipped by voice tracking.
+
+The repo also includes two tools for preparing scripts:
+
+- `PROMPT-chuyen-kich-ban.md`: a prompt (in Vietnamese) you can paste into any AI chat to convert a script into this format.
+- `skills/eyeprompter-script/`: a skill for Claude Code, Antigravity or Gemini CLI that writes or converts scripts. It comes with a checker, `scripts/check_script.py`. To install it, copy the folder into `~/.claude/skills/`.
 
 ## Build
 
-Cần Xcode 16 trở lên, iOS 17 trở lên.
+Requirements: Xcode 16 or later, iOS 17 or later.
 
-1. Mở `EyePrompter.xcodeproj`.
-2. Ở *Signing & Capabilities*, chọn Team của bạn và đổi Bundle Identifier.
-3. Chạy trên iPhone thật. Simulator không có camera trước nên không thử được phần quay và chỉnh mắt.
+1. Open `EyePrompter.xcodeproj`.
+2. Under *Signing & Capabilities*, select your own Team and change the Bundle Identifier.
+3. Run it on a real iPhone. The Simulator has no front camera, so recording and gaze correction can't be tested there.
+
+The UI is in Vietnamese.
