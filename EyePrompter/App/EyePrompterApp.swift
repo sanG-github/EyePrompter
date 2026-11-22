@@ -6,7 +6,7 @@ struct EyePrompterApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ScriptListView()
+            RootView()
                 .environmentObject(store)
                 .preferredColorScheme(.dark)
                 .tint(Color.prompterYellow)
@@ -15,12 +15,24 @@ struct EyePrompterApp: App {
     }
 }
 
+/// Strings are picked when views are built, so a language change rebuilds the whole tree.
+struct RootView: View {
+    @AppStorage(Prefs.appLanguage) private var language = AppLanguage.system.rawValue
+
+    var body: some View {
+        ScriptListView()
+            .id(language)
+            .environment(\.locale, Locale(identifier: AppLanguage.current.localeIdentifier))
+    }
+}
+
 /// User preferences shared by the prompter and its settings sheet.
 enum Prefs {
     static let fontSize = "fontSize"            // pt
     static let visibleLines = "visibleLines"    // lines shown in the prompter band
     static let columnWidth = "columnWidth"      // fraction of screen width
-    static let localeID = "localeID"
+    static let localeID = "localeID"           // speech recognition locale
+    static let appLanguage = "appLanguage"     // AppLanguage raw value
     static let eyeContact = "eyeContact"
     static let eyeStrength = "eyeStrength"
     static let autoWPM = "autoWPM"

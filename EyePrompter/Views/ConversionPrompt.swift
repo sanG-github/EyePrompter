@@ -4,14 +4,16 @@ import UIKit
 /// A ready-made prompt for ChatGPT / Claude / Gemini that turns any draft script
 /// into the EyePrompter format (`# Title`, spoken text only, `[notes]`).
 enum ConversionPrompt {
-    static let text = """
+    static var text: String { AppLanguage.current == .en ? english : vietnamese }
+
+    static let vietnamese = """
     Bạn là biên tập viên kịch bản cho teleprompter. Hãy chuyển kịch bản ở cuối tin nhắn này sang định dạng EyePrompter.
 
     ĐỊNH DẠNG EYEPROMPTER
     1. Dòng đầu tiên: "# " + tiêu đề ngắn (tối đa 8 chữ).
     2. Phần còn lại CHỈ là lời sẽ được nói ra, viết đúng như khi đọc thành tiếng.
     3. Mọi thứ KHÔNG nói ra (ghi chú quay, B-roll, chuyển cảnh, hành động, cảm xúc, thời lượng, tên phân cảnh) đặt trong ngoặc vuông, trên một dòng riêng. Ví dụ: [B-roll: cảnh phố cổ], [cười], [cầm sản phẩm lên], [chuyển cảnh]. App hiện chúng nhỏ, mờ và không chờ người đọc.
-    4. Nếu kịch bản có nhiều phần (mở đầu/hook, các ý chính, kết, kêu gọi đăng ký…), đặt tiêu đề phần trên một dòng riêng bắt đầu bằng "## ", ví dụ "## Hook", "## Phần 1: Ánh mắt", "## Kết". Tiêu đề ngắn, tối đa 6 chữ. App dùng chúng làm mục lục để nhảy nhanh và không đọc chúng.
+    4. Nếu kịch bản có nhiều phần (mở đầu/hook, các ý chính, kết, kêu gọi đăng ký…), đặt tiêu đề phần trên một dòng riêng bắt đầu bằng "## ", ví dụ "## Hook", "## Phần 1: Ánh mắt", "## Kết". Tiêu đề ngắn, tối đa 8 chữ. App dùng chúng làm mục lục để nhảy nhanh và không đọc chúng.
     5. Mỗi đoạn 1–3 câu, các đoạn cách nhau bằng MỘT dòng trống. Câu ngắn, tối đa khoảng 25 chữ; tách câu dài thành câu ngắn hơn ở chỗ ngắt hơi tự nhiên.
     6. Mỗi câu kết thúc bằng dấu . ? hoặc ! (app dùng dấu câu để quay về đầu câu khi đọc lại).
     7. Viết ra đúng như cách nói:
@@ -43,6 +45,46 @@ enum ConversionPrompt {
     (dán kịch bản vào đây)
     >>>
     """
+
+    static let english = """
+    You are a script editor for a teleprompter. Convert the script at the end of this message into the EyePrompter format.
+
+    EYEPROMPTER FORMAT
+    1. First line: "# " + a short title (8 words at most).
+    2. Everything else is ONLY what will be said aloud, written exactly as it is spoken.
+    3. Anything NOT said aloud (shooting notes, B-roll, transitions, actions, emotions, timings, scene names) goes in square brackets on its own line. Examples: [B-roll: city street], [smile], [hold up the product], [transition]. The app shows these small and dimmed and does not wait for them.
+    4. If the script has several parts (hook, main points, outro, call to action…), put each part's name on its own line starting with "## ", e.g. "## Hook", "## Part 1: Eye contact", "## Outro". Keep names short, 8 words at most. The app lists them in an outline for quick jumps and does not wait for them to be read.
+    5. Paragraphs of 1–3 sentences, separated by ONE blank line. Short sentences, about 25 words at most; split long ones at natural pauses.
+    6. Every sentence ends with . ? or ! (the app uses punctuation to jump back to the start of a sentence).
+    7. Write it as it is spoken:
+       - Abbreviations in full: "e.g." → "for example", "approx." → "about", "w/" → "with".
+       - Symbols as words: "%" → "percent", "&" → "and", "$5" → "5 dollars", "→" → drop it or say it in words.
+       - Keep ordinary numbers as digits (2026, 15, 3.5) unless they are read in an unusual way.
+       - Keep names and brands in their usual spelling (YouTube, iPhone, AI).
+    8. Remove all markdown and decoration: **, *, _, bullets, numbering, emoji, links, tables (keep only "# " for the title and "## " for part names). Turn lists into flowing speech ("First, … Second, …").
+    9. Keep the original meaning, tone and language. Fix only obvious typos. Do not add, summarize or drop ideas.
+    10. Return only the converted script, in ONE ```text code block so it is easy to copy. No explanations.
+
+    EXAMPLE OUTPUT
+    ```text
+    # How to look natural on camera
+
+    [Opening: close-up, soft music]
+
+    ## Hook
+    Hi everyone. Today I'm sharing three tips for talking to a camera.
+
+    ## Tip 1: Eye contact
+    First, eye contact. Look straight into the lens, as if you were talking to a friend.
+
+    [B-roll: phone on a tripod]
+    ```
+
+    SCRIPT TO CONVERT:
+    <<<
+    (paste your script here)
+    >>>
+    """
 }
 
 struct ConversionPromptView: View {
@@ -54,12 +96,16 @@ struct ConversionPromptView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Label("Cách dùng", systemImage: "lightbulb").font(.headline)
-                        Text("""
+                        Label(tr("Cách dùng", "How to use"), systemImage: "lightbulb").font(.headline)
+                        Text(LocalizedStringKey(tr("""
                         1. Bấm **Copy prompt**. Nhờ Universal Clipboard, prompt có sẵn trên Mac (⌘V).
                         2. Dán vào ChatGPT, Claude hoặc Gemini, thay dòng "(dán kịch bản vào đây)" bằng kịch bản của bạn.
                         3. Copy kết quả (khối code) trên Mac, rồi trên iPhone bấm **Dán** ở màn hình Kịch bản. Tiêu đề và ghi chú [...] được nhận tự động.
-                        """)
+                        """, """
+                        1. Tap **Copy prompt**. With Universal Clipboard, it is ready to paste on your Mac (⌘V).
+                        2. Paste it into ChatGPT, Claude or Gemini and replace "(paste your script here)" with your script.
+                        3. Copy the result (the code block) on your Mac, then tap **Paste** on the Scripts screen of the iPhone. The title and [...] notes are picked up automatically.
+                        """)))
                         .font(.subheadline)
                     }
                     Text(ConversionPrompt.text)
@@ -77,7 +123,7 @@ struct ConversionPromptView: View {
                         UIPasteboard.general.string = ConversionPrompt.text
                         copied = true
                     } label: {
-                        Label(copied ? "Đã copy" : "Copy prompt", systemImage: copied ? "checkmark" : "doc.on.doc")
+                        Label(copied ? tr("Đã copy", "Copied") : "Copy prompt", systemImage: copied ? "checkmark" : "doc.on.doc")
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
                     }
@@ -91,10 +137,10 @@ struct ConversionPromptView: View {
                 .padding()
                 .background(.bar)
             }
-            .navigationTitle("Prompt chuyển kịch bản")
+            .navigationTitle(tr("Prompt chuyển kịch bản", "Script conversion prompt"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Đóng") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) { Button(tr("Đóng", "Close")) { dismiss() } }
             }
         }
     }

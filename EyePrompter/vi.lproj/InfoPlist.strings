@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "Camera trước dùng để quay video và chỉnh hướng nhìn của mắt.";
+"NSMicrophoneUsageDescription" = "Micro dùng để thu âm và để chữ chạy theo giọng đọc của bạn.";
+"NSPhotoLibraryAddUsageDescription" = "Lưu video đã quay vào Ảnh.";
+"NSSpeechRecognitionUsageDescription" = "Nhận dạng giọng nói để biết bạn đang đọc tới chữ nào.";

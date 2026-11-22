@@ -15,9 +15,9 @@ enum GazeCalibrationStore {
 
     static func name(_ o: UIInterfaceOrientation) -> String {
         switch o {
-        case .landscapeLeft: return "ngang, camera bên phải"
-        case .landscapeRight: return "ngang, camera bên trái"
-        default: return "dọc"
+        case .landscapeLeft: return tr("ngang, camera bên phải", "landscape, camera on the right")
+        case .landscapeRight: return tr("ngang, camera bên trái", "landscape, camera on the left")
+        default: return tr("dọc", "portrait")
         }
     }
 
@@ -108,9 +108,9 @@ struct GazeCalibrationOverlay: View {
         VStack(spacing: 14) {
             switch phase {
             case .camera:
-                step("1/2", "Nhìn thẳng vào camera", "Mũi tên vàng chỉ chỗ ống kính. Giữ đầu yên, mắt mở tự nhiên.")
+                step("1/2", tr("Nhìn thẳng vào camera", "Look straight into the camera"), tr("Mũi tên vàng chỉ chỗ ống kính. Giữ đầu yên, mắt mở tự nhiên.", "The yellow arrow marks the lens. Keep your head still and your eyes relaxed."))
             case .text:
-                step("2/2", "Nhìn vào dòng chữ trong khung vàng", "Như lúc bạn đang đọc. Giữ đầu ở đúng vị trí cũ.")
+                step("2/2", tr("Nhìn vào dòng chữ trong khung vàng", "Look at the text in the yellow frame"), tr("Như lúc bạn đang đọc. Giữ đầu ở đúng vị trí cũ.", "As if you were reading. Keep your head where it was."))
             case .done(let message, _):
                 Image(systemName: "checkmark.circle.fill").font(.largeTitle).foregroundStyle(Color.prompterYellow)
                 Text(message).multilineTextAlignment(.center).font(.subheadline)
@@ -134,19 +134,19 @@ struct GazeCalibrationOverlay: View {
                 Text("\(countdown)").font(.system(size: 34, weight: .bold, design: .rounded)).monospacedDigit()
             } else {
                 ProgressView(value: progress).tint(Color.prompterYellow)
-                Text("Đang đo…").font(.caption).foregroundStyle(.secondary)
+                Text(tr("Đang đo…", "Measuring…")).font(.caption).foregroundStyle(.secondary)
             }
         }
     }
 
     private var buttons: some View {
         HStack(spacing: 12) {
-            Button("Làm lại") {
+            Button(tr("Làm lại", "Try again")) {
                 phase = .camera
                 runID += 1
             }
             .buttonStyle(.bordered)
-            Button("Xong") { onClose() }
+            Button(tr("Xong", "Done")) { onClose() }
                 .buttonStyle(.borderedProminent)
                 .foregroundStyle(.black)
         }
@@ -182,11 +182,11 @@ struct GazeCalibrationOverlay: View {
 
     private func evaluate(camera: GazeCorrector.SampleResult, text: GazeCorrector.SampleResult) {
         guard camera.count >= 10, text.count >= 10 else {
-            phase = .failed("Không thấy rõ mắt (\(min(camera.count, text.count)) khung hình). Đưa mặt vào giữa khung, đủ sáng, rồi làm lại.")
+            phase = .failed(tr("Không thấy rõ mắt (\(min(camera.count, text.count)) khung hình). Đưa mặt vào giữa khung, đủ sáng, rồi làm lại.", "Couldn’t see your eyes clearly (\(min(camera.count, text.count)) frames). Center your face in good light and try again."))
             return
         }
         guard max(camera.spread, text.spread) < 0.08 else {
-            phase = .failed("Mắt hoặc đầu di chuyển nhiều quá trong lúc đo. Giữ yên rồi làm lại nhé.")
+            phase = .failed(tr("Mắt hoặc đầu di chuyển nhiều quá trong lúc đo. Giữ yên rồi làm lại nhé.", "Your eyes or head moved too much while measuring. Hold still and try again."))
             return
         }
         // How the pupil must move to go from "reading" to "looking at the lens".
@@ -194,7 +194,7 @@ struct GazeCalibrationOverlay: View {
         let magnitude = simd_length(offset)
         let percent = String(format: "%.1f", magnitude * 100)
         guard magnitude < 0.25 else {
-            phase = .failed("Kết quả bất thường (\(percent)% bề rộng mắt). Làm lại và giữ đầu yên giữa hai bước.")
+            phase = .failed(tr("Kết quả bất thường (\(percent)% bề rộng mắt). Làm lại và giữ đầu yên giữa hai bước.", "Unusual result (\(percent)% of eye width). Try again and keep your head still between the two steps."))
             return
         }
         // Saved even when the offset is tiny: the camera-look position is what the
@@ -202,12 +202,12 @@ struct GazeCalibrationOverlay: View {
         GazeCalibrationStore.save(GazeCalibration(camera: camera.mean, offset: offset), orientation)
         let direction: String
         if abs(offset.y) >= abs(offset.x) {
-            direction = offset.y < 0 ? "chủ yếu nhìn xuống" : "chủ yếu nhìn lên"
+            direction = offset.y < 0 ? tr("chủ yếu nhìn xuống", "mostly downward") : tr("chủ yếu nhìn lên", "mostly upward")
         } else {
             // Samples are stored un-mirrored: +x in the image is the user's left.
-            direction = offset.x > 0 ? "chủ yếu liếc sang phải" : "chủ yếu liếc sang trái"
+            direction = offset.x > 0 ? tr("chủ yếu liếc sang phải", "mostly to the right") : tr("chủ yếu liếc sang trái", "mostly to the left")
         }
-        phase = .done(message: "Đã lưu cho chế độ \(GazeCalibrationStore.name(orientation)). Khi đọc, mắt bạn lệch \(percent)% bề rộng mắt, \(direction). Từ giờ app khoá tròng mắt về đúng vị trí lúc bạn nhìn camera.",
+        phase = .done(message: tr("Đã lưu cho chế độ \(GazeCalibrationStore.name(orientation)). Khi đọc, mắt bạn lệch \(percent)% bề rộng mắt, \(direction). Từ giờ app khoá tròng mắt về đúng vị trí lúc bạn nhìn camera.", "Saved for \(GazeCalibrationStore.name(orientation)). While reading, your eyes are off by \(percent)% of eye width, \(direction). From now on the app locks your irises to where they were when you looked at the camera."),
                       saved: true)
     }
 }

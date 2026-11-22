@@ -33,14 +33,14 @@ final class SpeechFollower {
     func start(localeID: String, contextualStrings: [String]) {
         stop()
         guard let r = SFSpeechRecognizer(locale: Locale(identifier: localeID)) else {
-            onStatus?("Không hỗ trợ ngôn ngữ \(localeID)")
+            onStatus?(tr("Không hỗ trợ ngôn ngữ \(localeID)", "Language not supported: \(localeID)"))
             return
         }
         recognizer = r
         contextual = contextualStrings
         running = true
         consecutiveErrors = 0
-        onStatus?(r.supportsOnDeviceRecognition ? "Nghe trên máy" : "Nghe (cần mạng)")
+        onStatus?(r.supportsOnDeviceRecognition ? tr("Nghe trên máy", "Listening on device") : tr("Nghe (cần mạng)", "Listening (needs internet)"))
         beginTask()
     }
 
@@ -72,7 +72,7 @@ final class SpeechFollower {
         let e = AVAudioEngine()
         let input = e.inputNode
         let format = input.outputFormat(forBus: 0)
-        guard format.sampleRate > 0 else { onStatus?("Không có micro"); return }
+        guard format.sampleRate > 0 else { onStatus?(tr("Không có micro", "No microphone")); return }
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             guard let self else { return }
             self.lock.lock()
@@ -87,7 +87,7 @@ final class SpeechFollower {
             try e.start()
             engine = e
         } catch {
-            onStatus?("Lỗi micro: \(error.localizedDescription)")
+            onStatus?(tr("Lỗi micro: \(error.localizedDescription)", "Microphone error: \(error.localizedDescription)"))
         }
     }
 

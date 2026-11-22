@@ -19,6 +19,7 @@ An iPhone teleprompter that scrolls along with your voice and corrects your gaze
 - **Resume**: reopen the app and it continues where you stopped.
 - **Eye-contact correction**: Vision finds the eyes and a Metal shader shifts the iris so you appear to look at the camera. Calibrating takes 4 seconds: look at the camera for 2 s, then at the text for 2 s.
 - **Recording**: front camera at 1080p or 4K, 30 or 60 fps, with exposure, zoom and an optional mirrored output. Clips are saved to Photos. Portrait and landscape are both supported.
+- **English and Vietnamese**: switch the interface language from the globe button on the Scripts screen, or leave it on the device language. The speech-recognition language is set separately in Settings, so you can read a Vietnamese script with an English interface.
 - **Script import**: paste from a Mac through Universal Clipboard, AirDrop a `.txt`, `.md` or `.rtf` file, or use "Open in".
 
 ## Script format
@@ -41,7 +42,7 @@ Paragraphs of 1 to 3 sentences, separated by a blank line.
 
 The repo also includes two tools for preparing scripts:
 
-- `PROMPT-chuyen-kich-ban.md`: a prompt (in Vietnamese) you can paste into any AI chat to convert a script into this format.
+- In the app, **+ › Script conversion prompt (AI)** gives you a prompt, in the interface language, to paste into any AI chat to convert a script into this format. `PROMPT-chuyen-kich-ban.md` is the Vietnamese version as a file.
 - `skills/eyeprompter-script/`: a skill for Claude Code, Antigravity or Gemini CLI that writes or converts scripts. It comes with a checker, `scripts/check_script.py`. To install it, copy the folder into `~/.claude/skills/`.
 
 ## Build
@@ -51,5 +52,3 @@ Requirements: Xcode 16 or later, iOS 17 or later.
 1. Open `EyePrompter.xcodeproj`.
 2. Under *Signing & Capabilities*, select your own Team and change the Bundle Identifier.
 3. Run it on a real iPhone. The Simulator has no front camera, so recording and gaze correction can't be tested there.
-
-The UI is in Vietnamese.

@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "The front camera records your video and corrects where your eyes look.";
+"NSMicrophoneUsageDescription" = "The microphone records audio and lets the text follow your voice.";
+"NSPhotoLibraryAddUsageDescription" = "Saves your recordings to Photos.";
+"NSSpeechRecognitionUsageDescription" = "Speech recognition tells the app which word you are reading.";

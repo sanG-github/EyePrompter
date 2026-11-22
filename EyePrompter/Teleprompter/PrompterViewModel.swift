@@ -9,9 +9,9 @@ final class PrompterViewModel: ObservableObject {
         var id: String { rawValue }
         var title: String {
             switch self {
-            case .voice: return "Theo giọng"
-            case .auto: return "Tự cuộn"
-            case .manual: return "Thủ công"
+            case .voice: return tr("Theo giọng", "Voice")
+            case .auto: return tr("Tự cuộn", "Auto scroll")
+            case .manual: return tr("Thủ công", "Manual")
             }
         }
         var icon: String {
@@ -46,7 +46,7 @@ final class PrompterViewModel: ObservableObject {
     @Published private(set) var speechStatus = ""
     @Published private(set) var permissionProblem: String?
 
-    var localeID = "vi-VN"
+    var localeID = AppLanguage.current.defaultSpeechLocale
     var autoWPM: Double = 150
     private var autoTimer: Timer?
     private var autoAccumulator = 0.0
@@ -96,7 +96,7 @@ final class PrompterViewModel: ObservableObject {
             let cam = await AVCaptureDevice.requestAccess(for: .video)
             let mic = await AVCaptureDevice.requestAccess(for: .audio)
             if !cam || !mic {
-                permissionProblem = "Cần quyền Camera và Micro — mở Cài đặt › EyePrompter."
+                permissionProblem = tr("Cần quyền Camera và Micro — mở Cài đặt › EyePrompter.", "Camera and microphone access needed: open Settings › EyePrompter.")
             }
             camera.start { [weak self] in
                 guard let self else { return }
@@ -147,7 +147,7 @@ final class PrompterViewModel: ObservableObject {
         SpeechFollower.requestAuthorization { [weak self] ok in
             guard let self else { return }
             guard ok else {
-                self.speechStatus = "Chưa cho phép nhận dạng giọng nói"
+                self.speechStatus = tr("Chưa cho phép nhận dạng giọng nói", "Speech recognition not allowed")
                 return
             }
             self.speech.start(localeID: self.localeID,

@@ -29,7 +29,7 @@ final class ScriptStore: ObservableObject {
            let decoded = try? JSONDecoder().decode([Script].self, from: data) {
             scripts = decoded
         } else {
-            scripts = [Script.sample]
+            scripts = [AppLanguage.current == .en ? Script.sampleEnglish : Script.sample]
         }
     }
 
@@ -48,7 +48,7 @@ final class ScriptStore: ObservableObject {
 
     @discardableResult
     func add() -> Script {
-        let s = Script(title: "Kịch bản mới", body: "")
+        let s = Script(title: tr("Kịch bản mới", "New script"), body: "")
         scripts.insert(s, at: 0)
         return s
     }
@@ -76,7 +76,7 @@ final class ScriptStore: ObservableObject {
         guard !text.isEmpty else { return nil }
         let firstLine = text.split(separator: "\n").first.map(String.init) ?? ""
         let name = heading ?? title ?? String(firstLine.prefix(48))
-        let script = Script(title: name.isEmpty ? "Kịch bản" : name, body: text)
+        let script = Script(title: name.isEmpty ? tr("Kịch bản", "Script") : name, body: text)
         scripts.insert(script, at: 0)
         return script
     }
@@ -139,6 +139,28 @@ extension Script {
 
         ## Kết
         Cảm ơn các bạn đã xem, hẹn gặp lại ở video sau nhé.
+        """)
+}
+
+extension Script {
+    static let sampleEnglish = Script(
+        title: "Example: Channel intro",
+        body: """
+        [Opening: close-up. Notes in square brackets are reminders, not read aloud]
+
+        ## Intro
+        Hi everyone. Today I'm going to show you how to film a talking video that feels natural.
+
+        ## Eye contact
+        The most important thing is eye contact. When you look straight into the lens, viewers feel you are talking to them.
+
+        ## Text that follows your voice
+        This app listens to your voice, and the text moves along with you. Read faster and it speeds up, stop and it stops too.
+
+        And if you stumble or skip a passage, don't worry. The app finds where you are again.
+
+        ## Outro
+        Thanks for watching, and see you in the next video.
         """)
 }
 

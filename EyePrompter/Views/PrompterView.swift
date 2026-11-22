@@ -8,7 +8,7 @@ struct PrompterView: View {
     @AppStorage(Prefs.fontSize) private var fontSize: Double = 30
     @AppStorage(Prefs.visibleLines) private var visibleLines: Double = 4
     @AppStorage(Prefs.columnWidth) private var columnWidth: Double = 0.86
-    @AppStorage(Prefs.localeID) private var localeID = "vi-VN"
+    @AppStorage(Prefs.localeID) private var localeID = AppLanguage.current.defaultSpeechLocale
     @AppStorage(Prefs.eyeContact) private var eyeContact = true
     @AppStorage(Prefs.eyeStrength) private var eyeStrength: Double = 1.0
     @AppStorage(Prefs.autoWPM) private var autoWPM: Double = 150
@@ -326,7 +326,7 @@ struct PrompterView: View {
         HStack(spacing: 8) {
             RecordingBadge(camera: vm.camera)
             if showRewind {
-                Label("Đọc lại", systemImage: "arrow.uturn.backward")
+                Label(tr("Đọc lại", "Re-reading"), systemImage: "arrow.uturn.backward")
                     .font(.caption.bold())
                     .foregroundStyle(.black)
                     .padding(.horizontal, 10)
@@ -335,9 +335,9 @@ struct PrompterView: View {
                     .transition(.scale.combined(with: .opacity))
             }
             if vm.mode == .voice {
-                Label(vm.paused ? "Tạm dừng"
+                Label(vm.paused ? tr("Tạm dừng", "Paused")
                       : vm.heard.isEmpty ? vm.speechStatus
-                      : vm.wordsPerMinute > 0 ? "≈\(vm.wordsPerMinute) từ/phút · \(vm.heard)" : vm.heard,
+                      : vm.wordsPerMinute > 0 ? tr("≈\(vm.wordsPerMinute) từ/phút · \(vm.heard)", "≈\(vm.wordsPerMinute) wpm · \(vm.heard)") : vm.heard,
                       systemImage: vm.paused ? "pause.fill" : "waveform")
                     .lineLimit(1)
                     .font(.caption)
@@ -357,20 +357,20 @@ struct PrompterView: View {
             Image(systemName: "tortoise")
             Slider(value: $autoWPM, in: 60...260, step: 5)
             Image(systemName: "hare")
-            Text("\(Int(autoWPM))/ph").font(.caption.monospacedDigit()).frame(width: 52)
+            Text(tr("\(Int(autoWPM))/ph", "\(Int(autoWPM))/min")).font(.caption.monospacedDigit()).frame(width: 52)
         }
     }
 
     /// Jump to a section / paragraph.
     private var outlineButton: some View {
         circleButton("list.bullet.indent") { showOutline = true }
-            .accessibilityLabel("Mục lục")
+            .accessibilityLabel(tr("Mục lục", "Outline"))
     }
 
     /// "Read this sentence again" — tap once for the current sentence, again for the previous.
     private var rewindButton: some View {
         Button { vm.rewindSentence() } label: {
-            Label("Câu", systemImage: "arrow.uturn.backward")
+            Label(tr("Câu", "Sentence"), systemImage: "arrow.uturn.backward")
                 .font(.footnote.bold())
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
@@ -397,13 +397,13 @@ struct PrompterView: View {
 
     private var modeMenu: some View {
         Menu {
-            Picker("Chế độ", selection: $vm.mode) {
+            Picker(tr("Chế độ", "Mode"), selection: $vm.mode) {
                 ForEach(PrompterViewModel.ScrollMode.allCases) { m in
                     Label(m.title, systemImage: m.icon).tag(m)
                 }
             }
             Divider()
-            Button("Về đầu kịch bản", systemImage: "arrow.uturn.backward") { vm.restartFromTop() }
+            Button(tr("Về đầu kịch bản", "Back to the top"), systemImage: "arrow.uturn.backward") { vm.restartFromTop() }
         } label: {
             circleLabel(vm.mode.icon)
         }
@@ -416,7 +416,7 @@ struct PrompterView: View {
             .onLongPressGesture(minimumDuration: 0.25, maximumDistance: 40, pressing: { comparing = $0 }, perform: {})
             .overlay(alignment: .top) {
                 if comparing {
-                    Text("Gốc").font(.caption2.bold()).padding(4)
+                    Text(tr("Gốc", "Original")).font(.caption2.bold()).padding(4)
                         .background(.black.opacity(0.7), in: Capsule()).offset(y: -26)
                 }
             }
@@ -446,7 +446,7 @@ private struct CameraLayer: View {
             } else if !ProcessInfo.processInfo.arguments.contains("-screenshots") {
                 VStack(spacing: 8) {
                     Image(systemName: "video.slash").font(.largeTitle)
-                    Text("Không có camera trước (Simulator?)").font(.footnote)
+                    Text(tr("Không có camera trước (Simulator?)", "No front camera (Simulator?)")).font(.footnote)
                 }
                 .foregroundStyle(.secondary)
             }
@@ -524,7 +524,7 @@ struct PrompterSettingsView: View {
     @AppStorage(Prefs.fontSize) private var fontSize: Double = 30
     @AppStorage(Prefs.visibleLines) private var visibleLines: Double = 4
     @AppStorage(Prefs.columnWidth) private var columnWidth: Double = 0.86
-    @AppStorage(Prefs.localeID) private var localeID = "vi-VN"
+    @AppStorage(Prefs.localeID) private var localeID = AppLanguage.current.defaultSpeechLocale
     @AppStorage(Prefs.eyeContact) private var eyeContact = true
     @AppStorage(Prefs.eyeStrength) private var eyeStrength: Double = 1.0
     @AppStorage(Prefs.centerText) private var centerText = true
@@ -534,86 +534,86 @@ struct PrompterSettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("Độ phân giải", selection: $camResolution) {
+                    Picker(tr("Độ phân giải", "Resolution"), selection: $camResolution) {
                         Text("1080p").tag("1080p")
                         Text("4K").tag("4K")
                     }
                     .pickerStyle(.segmented)
-                    Picker("Khung hình/giây", selection: $camFPS) {
+                    Picker(tr("Khung hình/giây", "Frame rate"), selection: $camFPS) {
                         Text("30 fps").tag(30)
                         Text("60 fps").tag(60)
                     }
                     .pickerStyle(.segmented)
                     .disabled(camResolution == "4K" && !camera.supports4K60)
-                    LabeledSlider(title: "Độ sáng", value: $camExposure, range: -2...2, step: 0.1, format: "%+.1f EV")
+                    LabeledSlider(title: tr("Độ sáng", "Exposure"), value: $camExposure, range: -2...2, step: 0.1, format: "%+.1f EV")
                     if camera.zoomRange.upperBound > 1.05 {
                         LabeledSlider(title: "Zoom", value: $camZoom, range: camera.zoomRange, step: 0.05, format: "%.2fx")
                     }
                     Toggle(isOn: $camMirror) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Video giống lúc quay (lật gương)")
-                            Text(camMirror ? "Video ra y như màn hình xem trước" : "Video ra đúng chiều thật (chữ trên áo đọc xuôi)")
+                            Text(tr("Video giống lúc quay (lật gương)", "Record as previewed (mirrored)"))
+                            Text(camMirror ? tr("Video ra y như màn hình xem trước", "The video matches the preview") : tr("Video ra đúng chiều thật (chữ trên áo đọc xuôi)", "The video is unmirrored (text on your shirt reads correctly)"))
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                     }
-                    Button("Đặt lại độ sáng & zoom") { camExposure = 0; camZoom = 1 }
-                } header: { Text("Camera") } footer: {
+                    Button(tr("Đặt lại độ sáng & zoom", "Reset exposure & zoom")) { camExposure = 0; camZoom = 1 }
+                } header: { Text(tr("Camera", "Camera")) } footer: {
                     Text(camera.isRecording
-                         ? "Đang quay: độ phân giải và fps sẽ áp dụng cho lần quay sau. Độ sáng và zoom đổi ngay."
-                         : "4K cho hình nét hơn nhưng file nặng hơn và máy nóng hơn. Khung xem trước hiển thị đúng khung hình sẽ được quay.")
+                         ? tr("Đang quay: độ phân giải và fps sẽ áp dụng cho lần quay sau. Độ sáng và zoom đổi ngay.", "Recording: resolution and frame rate apply to the next take. Exposure and zoom change now.")
+                         : tr("4K cho hình nét hơn nhưng file nặng hơn và máy nóng hơn. Khung xem trước hiển thị đúng khung hình sẽ được quay.", "4K is sharper but makes bigger files and a warmer phone. The preview shows exactly the frame that will be recorded."))
                 }
                 .onChange(of: camResolution) { if camResolution == "4K" && !camera.supports4K60 { camFPS = 30 } }
-                Section("Chữ") {
-                    LabeledSlider(title: "Cỡ chữ", value: $fontSize, range: 20...56, format: "%.0f pt")
-                    LabeledSlider(title: "Số dòng hiển thị", value: $visibleLines, range: 2...10, step: 1, format: "%.0f")
+                Section(tr("Chữ", "Text")) {
+                    LabeledSlider(title: tr("Cỡ chữ", "Font size"), value: $fontSize, range: 20...56, format: "%.0f pt")
+                    LabeledSlider(title: tr("Số dòng hiển thị", "Visible lines"), value: $visibleLines, range: 2...10, step: 1, format: "%.0f")
                     Toggle(isOn: $narrowColumn) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Ít liếc mắt")
-                            Text("Cột hẹp vài chữ ngay dưới camera — mắt gần như không lướt ngang")
+                            Text(tr("Ít liếc mắt", "Minimal eye movement"))
+                            Text(tr("Cột hẹp vài chữ ngay dưới camera — mắt gần như không lướt ngang", "A narrow column of a few words right under the camera, so your eyes barely move sideways"))
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                     }
-                    LabeledSlider(title: "Độ rộng cột", value: $columnWidth, range: 0.3...1, format: "%.0f%%", scale: 100)
+                    LabeledSlider(title: tr("Độ rộng cột", "Column width"), value: $columnWidth, range: 0.3...1, format: "%.0f%%", scale: 100)
                         .disabled(narrowColumn)
-                    Toggle("Căn giữa", isOn: $centerText)
+                    Toggle(tr("Căn giữa", "Center text"), isOn: $centerText)
                 }
                 Section {
-                    Picker("Ngôn ngữ đọc", selection: $localeID) {
+                    Picker(tr("Ngôn ngữ đọc", "Speech language"), selection: $localeID) {
                         Text("Tiếng Việt").tag("vi-VN")
                         Text("English (US)").tag("en-US")
                         Text("English (UK)").tag("en-GB")
                     }
-                    Toggle("Tự lùi khi đọc lại", isOn: $autoRewind)
-                } header: { Text("Giọng nói") } footer: {
-                    Text("Chữ trôi theo tốc độ đọc của bạn. Muốn đọc lại chỗ nào: vuốt chữ cho dòng đó nằm ở mũi tên vàng rồi thả tay, hoặc chạm vào chữ.")
+                    Toggle(tr("Tự lùi khi đọc lại", "Follow me back when re-reading"), isOn: $autoRewind)
+                } header: { Text(tr("Giọng nói", "Voice")) } footer: {
+                    Text(tr("Chữ trôi theo tốc độ đọc của bạn. Muốn đọc lại chỗ nào: vuốt chữ cho dòng đó nằm ở mũi tên vàng rồi thả tay, hoặc chạm vào chữ.", "The text moves at your reading pace. To re-read a passage, drag the text until that line sits at the yellow arrow and let go, or tap the text."))
                 }
                 Section {
-                    Toggle("Chỉnh ánh mắt nhìn camera", isOn: $eyeContact)
-                    LabeledSlider(title: "Mức chỉnh", value: $eyeStrength, range: 0...2, format: "%.0f%%", scale: 100)
+                    Toggle(tr("Chỉnh ánh mắt nhìn camera", "Eye-contact correction"), isOn: $eyeContact)
+                    LabeledSlider(title: tr("Mức chỉnh", "Strength"), value: $eyeStrength, range: 0...2, format: "%.0f%%", scale: 100)
                         .disabled(!eyeContact)
                     Button {
                         onCalibrate()
                     } label: {
-                        Label(hasCalibration ? "Hiệu chỉnh lại ánh mắt…" : "Hiệu chỉnh ánh mắt…", systemImage: "scope")
+                        Label(hasCalibration ? tr("Hiệu chỉnh lại ánh mắt…", "Recalibrate eye contact…") : tr("Hiệu chỉnh ánh mắt…", "Calibrate eye contact…"), systemImage: "scope")
                     }
                     if hasCalibration {
-                        Button("Xoá hiệu chỉnh (\(GazeCalibrationStore.name(orientation)))", role: .destructive) {
+                        Button(tr("Xoá hiệu chỉnh (\(GazeCalibrationStore.name(orientation)))", "Clear calibration (\(GazeCalibrationStore.name(orientation)))"), role: .destructive) {
                             GazeCalibrationStore.clear(orientation)
                             hasCalibration = false
                             onCalibrationChanged()
                         }
                     }
-                } header: { Text("Eye contact") } footer: {
+                } header: { Text(tr("Eye contact", "Eye contact")) } footer: {
                     Text(hasCalibration
-                         ? "Đang dùng số đo thật của mắt bạn (\(GazeCalibrationStore.name(orientation))). Nhấn giữ nút con mắt để so với hình gốc."
-                         : "Đang dùng số ước tính. Hiệu chỉnh 4 giây để app đo độ lệch thật của mắt bạn — làm riêng cho quay dọc và quay ngang.")
+                         ? tr("Đang dùng số đo thật của mắt bạn (\(GazeCalibrationStore.name(orientation))). Nhấn giữ nút con mắt để so với hình gốc.", "Using your measured eye offset (\(GazeCalibrationStore.name(orientation))). Press and hold the eye button to compare with the original.")
+                         : tr("Đang dùng số ước tính. Hiệu chỉnh 4 giây để app đo độ lệch thật của mắt bạn — làm riêng cho quay dọc và quay ngang.", "Using an estimate. A 4-second calibration measures your real eye offset; do it separately for portrait and landscape."))
                 }
             }
             .onAppear { hasCalibration = GazeCalibrationStore.load(orientation) != nil }
-            .navigationTitle("Cài đặt")
+            .navigationTitle(tr("Cài đặt", "Settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Xong") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) { Button(tr("Xong", "Done")) { dismiss() } }
             }
         }
     }
@@ -670,7 +670,7 @@ private struct LibraryButton: View {
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(.white.opacity(0.8), lineWidth: 1.5))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Video vừa quay")
+        .accessibilityLabel(tr("Video vừa quay", "Latest clip"))
         .sheet(isPresented: $showClip) {
             if let url = camera.lastClipURL { RecentClipView(url: url) }
         }
@@ -695,13 +695,13 @@ struct RecentClipView: View {
                     p.play()
                 }
                 .onDisappear { player?.pause() }
-                .navigationTitle("Video vừa quay")
+                .navigationTitle(tr("Video vừa quay", "Latest clip"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Đóng") { dismiss() } }
+                    ToolbarItem(placement: .cancellationAction) { Button(tr("Đóng", "Close")) { dismiss() } }
                     ToolbarItemGroup(placement: .primaryAction) {
                         ShareLink(item: url)
-                        Button("Mở Ảnh", systemImage: "photo.on.rectangle") { openURL(Self.photosURL) }
+                        Button(tr("Mở Ảnh", "Open Photos"), systemImage: "photo.on.rectangle") { openURL(Self.photosURL) }
                     }
                 }
         }
@@ -726,14 +726,14 @@ struct OutlineSheet: View {
                                 vm.stepParagraph(-1)
                                 dismiss()
                             } label: {
-                                Label("Đoạn trước", systemImage: "chevron.up").frame(maxWidth: .infinity)
+                                Label(tr("Đoạn trước", "Previous"), systemImage: "chevron.up").frame(maxWidth: .infinity)
                             }
                             .buttonStyle(.bordered)
                             Button {
                                 vm.stepParagraph(1)
                                 dismiss()
                             } label: {
-                                Label("Đoạn sau", systemImage: "chevron.down").frame(maxWidth: .infinity)
+                                Label(tr("Đoạn sau", "Next"), systemImage: "chevron.down").frame(maxWidth: .infinity)
                             }
                             .buttonStyle(.bordered)
                         }
@@ -744,17 +744,17 @@ struct OutlineSheet: View {
                             row(item).id(item.id)
                         }
                     } footer: {
-                        Text("Thêm dòng \"## Tên phần\" vào kịch bản để chia phần (Hook, Phần 1, Kết…).")
+                        Text(tr("Thêm dòng \"## Tên phần\" vào kịch bản để chia phần (Hook, Phần 1, Kết…).", "Add \"## Section name\" lines to the script to split it into parts (Hook, Part 1, Outro…)."))
                     }
                 }
                 .onAppear {
                     if let i = vm.currentOutlineIndex { proxy.scrollTo(i, anchor: .center) }
                 }
             }
-            .navigationTitle("Mục lục")
+            .navigationTitle(tr("Mục lục", "Outline"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Xong") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) { Button(tr("Xong", "Done")) { dismiss() } }
             }
         }
     }

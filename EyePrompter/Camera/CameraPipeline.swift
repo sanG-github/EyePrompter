@@ -174,7 +174,7 @@ final class CameraPipeline: NSObject, ObservableObject {
                 self.supports4K60 = fourK60
             }
         } catch {
-            post("Không chỉnh được camera: \(error.localizedDescription)")
+            post(tr("Không chỉnh được camera: \(error.localizedDescription)", "Couldn’t configure the camera: \(error.localizedDescription)"))
         }
     }
 
@@ -250,7 +250,7 @@ final class CameraPipeline: NSObject, ObservableObject {
                     self.rememberClip(writer.outputURL)
                     self.saveToPhotos(writer.outputURL)
                 } else {
-                    self.post("Lỗi ghi video: \(writer.error?.localizedDescription ?? "?")")
+                    self.post(tr("Lỗi ghi video: \(writer.error?.localizedDescription ?? "?")", "Recording error: \(writer.error?.localizedDescription ?? "?")"))
                 }
             }
         }
@@ -286,7 +286,7 @@ final class CameraPipeline: NSObject, ObservableObject {
         }
 
         guard w.startWriting() else {
-            post("Không thể bắt đầu ghi: \(w.error?.localizedDescription ?? "?")")
+            post(tr("Không thể bắt đầu ghi: \(w.error?.localizedDescription ?? "?")", "Couldn’t start recording: \(w.error?.localizedDescription ?? "?")"))
             return
         }
         w.startSession(atSourceTime: time)
@@ -302,13 +302,13 @@ final class CameraPipeline: NSObject, ObservableObject {
     private func saveToPhotos(_ url: URL) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
             guard status == .authorized || status == .limited else {
-                self.post("Chưa cho phép lưu vào Ảnh. File: \(url.lastPathComponent)")
+                self.post(tr("Chưa cho phép lưu vào Ảnh. File: \(url.lastPathComponent)", "No permission to save to Photos. File: \(url.lastPathComponent)"))
                 return
             }
             PHPhotoLibrary.shared().performChanges({
                 PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
             }) { ok, error in
-                self.post(ok ? "Đã lưu video vào Ảnh" : "Lỗi lưu: \(error?.localizedDescription ?? "?")")
+                self.post(ok ? tr("Đã lưu video vào Ảnh", "Video saved to Photos") : tr("Lỗi lưu: \(error?.localizedDescription ?? "?")", "Save failed: \(error?.localizedDescription ?? "?")"))
             }
         }
     }
