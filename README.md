@@ -10,7 +10,7 @@ An iPhone teleprompter that scrolls along with your voice and corrects your gaze
   <img src="docs/screenshots/settings.png" width="19%" alt="Camera settings">
 </p>
 
-<p align="center"><sub>Script editor · Prompter · Outline · Gaze calibration · Camera settings. Captured in the iOS Simulator, which has no front camera, so the camera preview is empty here; on an iPhone it shows your face behind the controls.</sub></p>
+<p align="center"><sub>Script editor · Prompter · Outline · Gaze calibration · Camera settings</sub></p>
 
 ## Features
 

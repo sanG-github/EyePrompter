@@ -443,7 +443,7 @@ private struct CameraLayer: View {
             Color.black
             if camera.hasCamera {
                 CameraPreview(pipeline: camera, framesMirrored: camera.outputMirrored)
-            } else {
+            } else if !ProcessInfo.processInfo.arguments.contains("-screenshots") {
                 VStack(spacing: 8) {
                     Image(systemName: "video.slash").font(.largeTitle)
                     Text("Không có camera trước (Simulator?)").font(.footnote)
